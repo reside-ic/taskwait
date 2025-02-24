@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "taskwait"
+dynamic = ["version"]
+description = 'Wait for a task to complete'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Rich FitzJohn", email = "r.fitzjohn@imperial.ac.uk" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/Rich FitzJohn/taskwait#readme"
+Issues = "https://github.com/Rich FitzJohn/taskwait/issues"
+Source = "https://github.com/Rich FitzJohn/taskwait"
+
+[tool.hatch.version]
+path = "src/taskwait/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/taskwait tests}"
+
+[tool.coverage.run]
+source_pkgs = ["taskwait", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/taskwait/__about__.py",
+]
+
+[tool.coverage.paths]
+taskwait = ["src/taskwait", "*/taskwait/src/taskwait"]
+tests = ["tests", "*/taskwait/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
