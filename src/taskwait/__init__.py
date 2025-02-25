@@ -1,6 +1,7 @@
 import math
 import time
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 
 class Task(ABC):
@@ -19,10 +20,12 @@ class Task(ABC):
     def has_log(self) -> bool:
         pass
 
-    @abstractmethod
-    @staticmethod
-    def status_map() -> dict[str, str]:
-        pass
+
+@dataclass
+class Result:
+    status: str
+    start: float
+    end: float
 
 
 # not yet supported: spinner (and progress in general), multiple tasks
@@ -44,9 +47,10 @@ class RunningTask:
         self._last_time: float | None = None
         self._time_end = math.inf if timeout is None else time.time() + timeout
 
-    def run(self) -> None:
+    def run(self) -> Result:
         self._wait_to_start()
         self._wait_to_finish()
+        return Result(self._status, self._t0, time.time())
 
     def _wait_to_start(self) -> None:
         while self._status in self._task.status_waiting:
@@ -83,5 +87,6 @@ def taskwait(
     show_log: bool = True,
     poll: int = 1,
     timeout: float | None = None,
-) -> None:
-    RunningTask(task, show_log=show_log, poll=poll, timeout=timeout)
+) -> Result:
+    t = RunningTask(task, show_log=show_log, poll=poll, timeout=timeout)
+    return t.run()

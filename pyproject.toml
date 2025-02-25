@@ -37,6 +37,8 @@ path = "src/taskwait/__about__.py"
 [tool.hatch.envs.default]
 dependencies = [
   "pytest",
+  "pytest-cov",
+  "pytest-mock",
 ]
 
 [tool.hatch.envs.default.scripts]
