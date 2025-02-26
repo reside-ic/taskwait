@@ -4,7 +4,7 @@ from unittest import mock
 
 import pytest
 
-from taskwait import Result, Task, _delay, taskwait
+from taskwait import Result, Task, _delay, _show_new_log, taskwait
 
 
 class ExampleTask(Task):
@@ -77,3 +77,12 @@ def test_delay_if_required(mocker):
     assert mock_time.call_count == 3
     assert mock_sleep.call_count == 1
     assert mock_sleep.mock_calls[0] == mock.call(7)
+
+
+def test_can_tail_logs(capsys):
+    assert _show_new_log(0, None) == 0
+    assert _show_new_log(0, []) == 0
+    assert _show_new_log(3, ["a", "b", "c"]) == 3
+    assert capsys.readouterr().out == ""
+    assert _show_new_log(1, ["a", "b", "c"]) == 3
+    assert capsys.readouterr().out == "b\nc\n"
