@@ -29,7 +29,6 @@ class Result:
     end: float
 
 
-# not yet supported: spinner (and progress in general), multiple tasks
 class RunningTask:
     def __init__(
         self,
