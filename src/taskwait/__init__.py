@@ -49,7 +49,7 @@ class RunningTask:
         self._last_time: float | None = None
         self._time_end = math.inf if timeout is None else time.time() + timeout
 
-    def run(self) -> Result:
+    def wait(self) -> Result:
         self._wait_to_start()
         self._wait_to_finish()
         return Result(self._status, self._t0, time.time())
@@ -89,7 +89,7 @@ def taskwait(
     t = RunningTask(
         task, show_log=show_log, progress=progress, poll=poll, timeout=timeout
     )
-    return t.run()
+    return t.wait()
 
 
 def _delay(prev, poll, end) -> float:
