@@ -1,3 +1,9 @@
+"""
+Wait for a task to complete.
+
+This module is inspired by our R "logwatch" package.
+"""
+
 import math
 import time
 from abc import ABC, abstractmethod
@@ -6,37 +12,69 @@ from dataclasses import dataclass
 
 
 class Task(ABC):
+    """
+    Base class for tasks.
+
+    Inherit from this class to create something suitable to pass into
+    taskwait.
+
+    Attributes
+    ----------
+      status_waiting (set[str]):
+          A set of statuses that are interpreted as "waiting"
+      status_running (set[str]):
+        A set of statuses that are interpreted as "running"
+
+    """
+
     status_waiting: set[str]
     status_running: set[str]
 
     @abstractmethod
     def status(self) -> str:
+        """Query for the status of the task."""
         pass  # pragma: no cover
 
     @abstractmethod
     def log(self) -> list[str] | None:
+        """Fetch logs for the task, if available."""
         return None  # pragma: no cover
 
     @abstractmethod
     def has_log(self) -> bool:
+        """Indicate if this task **may** produce logs (now or in future)."""
         pass  # pragma: no cover
 
 
 @dataclass
 class Result:
+    """
+    Result of waiting on a task.
+
+    Attributes
+    ----------
+      status (str):
+        The final status, returned by the ``status()`` method
+      start (float):
+        The task start time, in seconds since the Epoch
+      end (float):
+        The task end time, in seconds since the Epoch
+
+    """
+
     status: str
     start: float
     end: float
 
 
-class RunningTask:
+class _RunningTask:
     def __init__(
         self,
         task: Task,
         *,
         show_log: bool = True,
         progress: bool = True,
-        poll: int = 1,
+        poll: float = 1,
         timeout: float | None = None,
     ):
         self._task = task
@@ -56,13 +94,13 @@ class RunningTask:
 
     def _wait_to_start(self) -> None:
         display = self._show_log or self._progress
-        with very_simple_progress("Waiting", display=display) as p:
+        with _very_simple_progress("Waiting", display=display) as p:
             while self._status in self._task.status_waiting:
                 p()
                 self._status = self._task_status()
 
     def _wait_to_finish(self) -> None:
-        with very_simple_progress("Running", display=self._progress) as p:
+        with _very_simple_progress("Running", display=self._progress) as p:
             while self._status in self._task.status_running:
                 p()
                 self._show_new_log()
@@ -83,10 +121,23 @@ def taskwait(
     *,
     show_log: bool = True,
     progress: bool = True,
-    poll: int = 1,
+    poll: float = 1,
     timeout: float | None = None,
 ) -> Result:
-    t = RunningTask(
+    """
+    Wait for a task to complete.
+
+    Args:
+      task (Task): The task to wait on.
+      show_log (bool): Show logs, if available, while waiting?
+      progress (bool): Show a progress bar while waiting? Only shown
+        while running if `show_log` is `False`.
+      poll (float): Period to poll for new status/logs, in seconds.
+      timeout: (float | None): Time, in seconds, to wait before
+        throwing a `TimeoutError`.  If `None`, we wait forever.
+
+    """
+    t = _RunningTask(
         task, show_log=show_log, progress=progress, poll=poll, timeout=timeout
     )
     return t.wait()
@@ -113,7 +164,7 @@ def _show_new_log(skip: int, value: list[str] | None) -> int:
 
 # Small stub that we'll swap in for something better later.
 @contextmanager
-def very_simple_progress(start, end="OK", *, display: bool = True):
+def _very_simple_progress(start, end="OK", *, display: bool = True):
     if display:
         print(start, end="", flush=True)
 
