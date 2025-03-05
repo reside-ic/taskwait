@@ -37,5 +37,5 @@ jobs:
             mkdocs-material-
       - run: hatch run docs:build
       - name: Deploy to GitHub Pages
-        if: github.event_name != 'pull_request'
+        # if: github.event_name != 'pull_request'
         run: hatch env run -e docs mkdocs gh-deploy --force
