@@ -82,6 +82,16 @@ all = [
   "typing",
 ]
 
+[tool.hatch.envs.docs]
+extra-dependencies = [
+  "mkdocs-material",
+  "mkdocstrings-python",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build"
+serve = "mkdocs serve"
+
 [tool.coverage.run]
 branch = true
 parallel = true
@@ -146,8 +156,8 @@ ignore = [
   "S105", "S106", "S107",
   # Ignore complexity
   "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
-  # Don't require docstrings everywhere for now
-  "D100", "D101", "D102", "D103", "D104", "D105",
+  # These two are incompatible with D211 and D213 respectively.
+  "D203", "D212",
   # Ignore shadowing
   "A001", "A002", "A003",
   # Allow pickle
@@ -166,7 +176,4 @@ unfixable = [
 
 [tool.ruff.lint.per-file-ignores]
 # Tests can use magic values, assertions, and relative imports
-"tests/**/*" = ["PLR2004", "S101", "TID252"]
-
-[tool.ruff.lint.pydocstyle]
-convention = "numpy"
+"tests/**/*" = ["PLR2004", "S101", "TID252", "D"]
